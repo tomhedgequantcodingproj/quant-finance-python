@@ -2,29 +2,29 @@ import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# --- Configuration ---
+#  Configuration 
 TICKER = "AAPL"
 START_DATE = "2024-04-01"
 END_DATE = "2026-04-09"
 
-# --- Download price data ---
+#  Download price data 
 df = yf.download(TICKER, start=START_DATE, end=END_DATE)
 spy = yf.download("SPY", start=START_DATE, end=END_DATE)
 
 close = df["Close"].squeeze()
 spy_close = spy["Close"].squeeze()
 
-# --- Bollinger Bands (20 day, 2 standard deviations) ---
+#  Bollinger Bands (20 day, 2 standard deviations) 
 middle = close.rolling(window=20).mean()
 std = close.rolling(window=20).std()
 upper = middle + (2 * std)
 lower = middle - (2 * std)
 
-# --- Trend filters ---
+#  Trend filters 
 spy_sma50 = spy_close.rolling(window=50).mean()   # market regime filter
 AAPL_sma50 = close.rolling(window=50).mean()       # individual stock trend filter
 
-# --- Plot price with Bollinger Bands ---
+# Plot price with Bollinger Bands 
 fig, ax1 = plt.subplots(figsize=(12, 8))
 close.plot(ax=ax1, label="Close Price", color="steelblue", alpha=0.5)
 upper.plot(ax=ax1, label="Upper Band", color="red")
@@ -36,7 +36,7 @@ ax1.legend()
 plt.tight_layout()
 plt.show()
 
-# --- Build signals DataFrame ---
+#  Build signals DataFrame 
 signals = pd.DataFrame()
 signals["close"] = close
 signals["middle"] = middle
@@ -47,7 +47,7 @@ signals["spy_sma50"] = spy_sma50
 signals["AAPLsma50"] = AAPL_sma50
 signals["AAPLsma50_rising"] = signals["AAPLsma50"] > signals["AAPLsma50"].shift(5)
 
-# --- Backtest ---
+#  Backtest 
 # Entry: price touches lower band + SPY above 50 SMA + stock in uptrend
 # Exit: price reverts to mean, stop loss triggered, or take profit hit
 buy_price = None
@@ -89,12 +89,12 @@ for date, row in signals.iterrows():
         print(f"Stop Loss on {date.date()} | Buy: ${buy_price:.2f} → Sell: ${sell_price:.2f} | Profit: ${profit:.2f}")
         in_position = False
 
-# --- Summary ---
+#  Summary 
 print(f"\n--- Backtest Summary ---")
 result = "Profit" if total_profit > 0 else "Loss"
 print(f"Total {result}: ${total_profit:.2f} per share")
 
-# --- Kelly Criterion ---
+#  Kelly Criterion 
 def kelly_criterion(trade_profits):
     wins = [p for p in trade_profits if p > 0]
     losses = [abs(p) for p in trade_profits if p < 0]
