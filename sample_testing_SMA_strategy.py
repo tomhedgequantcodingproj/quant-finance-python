@@ -17,6 +17,10 @@ start_str = start.strftime("%Y-%m-%d")
 mid_str = midpoint.strftime("%Y-%m-%d")
 end_str = end.strftime("%Y-%m-%d")
 
+# Estimates for commission and spread
+COMMISSION = 0.001   # 0.1%
+SPREAD = 0.0005      # 0.05%
+COST = COMMISSION + SPREAD  # 0.15% total per trade
 
 # Download data 
 def run_backtest(ticker, start, end, label):
@@ -49,27 +53,31 @@ def run_backtest(ticker, start, end, label):
         # golden cross — buy if not already holding
         if row["crossover"] == 1 and not in_position:
             buy_price = row["close"]
-            stop_loss = buy_price * (1 - 0.02)
-            take_profit = buy_price * (1 + 0.03)
+            effective_buy = buy_price * (1 + COST)
+            stop_loss = effective_buy * (1 - 0.02)
+            take_profit = effective_buy * (1 + 0.03)
             in_position = True
 
         # take profit hit
         elif in_position and row["close"] >= take_profit:
-            profit = row["close"] - buy_price
+            effective_sell = row["close"] * (1 - COST)
+            profit = effective_sell - effective_buy
             total_profit += profit
             trade_profits.append(profit)
             in_position = False
 
         # death cross — sell if holding
         elif row["crossover"] == -1 and in_position:
-            profit = row["close"] - buy_price
+            effective_sell = row["close"] * (1 - COST)
+            profit = effective_sell - effective_buy
             total_profit += profit
             trade_profits.append(profit)
             in_position = False
 
         # stop loss hit
         elif in_position and row["close"] <= stop_loss:
-            profit = row["close"] - buy_price
+            effective_sell = row["close"] * (1 - COST)
+            profit = effective_sell - effective_buy
             total_profit += profit
             trade_profits.append(profit)
             in_position = False
