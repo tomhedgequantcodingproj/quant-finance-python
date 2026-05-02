@@ -18,7 +18,7 @@ df2 = yf.download(TICKER2, start=START, end=END, progress=False)
 close1 = df1["Close"].squeeze()
 close2 = df2["Close"].squeeze()
 
-#  Normalises prices to start at 1.0 so they're directly comparable 
+#  Normalises prices to start at 1.0 so they're directly comparable  
 normalised1 = close1 / close1.iloc[0]
 normalised2 = close2 / close2.iloc[0]
 
