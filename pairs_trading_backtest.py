@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
-# -----------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
 # Config
 TICKER1 = "RIO.AX"
 TICKER2 = "BHP.AX"
@@ -10,7 +10,7 @@ END = "2026-04-01"
 ZSCORE_ENTRY = 2      # enter trade when z-score exceeds this threshold
 ZSCORE_EXIT = 0.5     # exit trade when z-score returns within this range of zero
 WINDOW = 30           # rolling window for z-score calculation
-# -----------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
 #  Downloads price data 
 df1 = yf.download(TICKER1, start=START, end=END, progress=False)
 df2 = yf.download(TICKER2, start=START, end=END, progress=False)
